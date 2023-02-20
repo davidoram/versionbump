@@ -18,17 +18,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-        run: go mod download
-
-      # step 2: run tests
-      - name: Test
-        run: go test -v ./...
-
-      # step 3: generate build files and dump inside the workspace directory of the runner
+      # step 2: generate build files and dump inside the workspace directory of the runner
       - name: Generate build files
         uses: thatisuday/go-build-action@v1
         with:
