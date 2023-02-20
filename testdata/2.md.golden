@@ -1,0 +1,100 @@
+# Change Log
+
+## 10.5.0
+
+This text is added to the top of the file [ticket](http://link/to/a/ticket)
+
+## 10.4.1
+
+- Bump dependencies again - [XX-2435](https://ticket/system/XX-2435)
+
+## 10.4.0
+
+- Bump dependencies - [XX-2435](https://ticket/system/XX-2435)
+
+## 10.3.6
+
+- Add credentials for release-helper - [XX-2312](https://ticket/system/XX-2312)
+- Drive-by fixes:
+  - Added dependabot and codeowners config files
+  - Added Python to .tool-versions, as `node-gyp rebuild` seems to require it when running `npm install`
+
+## 10.3.5
+
+- Use '/health' path for ingress health-check
+
+## 10.3.4
+
+- Fix a and b [XXY-942](https://ticket/system/XXY-942)
+
+## 10.3.3
+
+- Updated Postgres to version 13.3 [XXY-811](https://ticket/system/XXY-811)
+
+## 10.3.2
+
+- CI/CD [XXY-613](https://ticket/system/XXY-613)
+- Use node 8.11.4
+- Change VERSION file to DEVELOPMENT
+- Add .github/mergeable.yml
+- Add .github/pull_request_template.md
+
+## 10.3.1
+
+- Log `X-Interaction-ID` to stdout on every request. [XX-1417](https://ticket/system/XX-1417).
+
+Old log message
+```
+2021-06-22T03:22:53.553Z - GET http://localhost /v1/not_a_service?asd=asd [404] 3ms
+```
+
+New log message
+```
+2021-06-22T03:22:53.553Z - GET http://localhost /v1/not_a_service?asd=asd [404] 3ms (b3bb78ba89f64ebbb4f483a2e13c6ed9)
+```
+
+## v10.3.0
+- Allow external interaction IDs: [JIRA card](https://ticket/system/ZZZ-103)
+- Maintenance `npm update`.
+- Fix local test setup and travis setup.
+
+## v10.2.4
+- Remove CPU/Memory health checks
+
+## v10.2.3
+- Add FooBarCredit and FooBarDebit resources to the list of the platformifiable resources.
+- Add Datadog APM tracing.
+- Update to Node 8.11.3 to use latest base Docker image.
+- Adds `.nvmrc` for version management.
+- Fix vulnerabilities.
+
+## v10.2.2
+- Fix typo FooBarForecastAccumulationExpiry
+
+## v10.2.1
+- Add FooBarForecastBalanceExpiry and FooBarForecastAccumulationExpiry resources to the list of the xxx resources.
+
+## v10.2.0
+- Update to Node 8.11.2 to use latest base Docker image.
+
+## v10.1.1
+- Add FooBarAccumulation resource to the list of the xxx resources.
+
+## v10.1.0
+- Update to Node 8.9.1 to use latest base Docker image: [Trello card](https://trello.com/c/G4Ud3pT4)
+
+## v10.0.3
+- Add FooBarToken resource to the list of platformifiable resources.
+
+## v10.0.2
+- Add FooBarBalance resource to the list of platformifiable resources.
+
+## v10.0.0
+- New xyz service database table and API endpoint: [Pull request](https://svn.com/foobar/pull/74)
+
+## v9.5
+- Maintenance update for Node.js: [Pull request](https://svn.com/foobar/pull/73)
+- Update resource names for xx to account for `Purchase`/`Refund`/`UnsafeRefund` and `FooBarFoo` equivalents: [Pull request](https://svn.com/foobar/pull/73)
+
+## v9.4.0 and earlier
+- These predate addition of `CHANGELOG.md`
