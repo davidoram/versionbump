@@ -31,7 +31,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-          versionbump-linux-arm64
-          versionbump-linux-amd64
-          versionbump-darwin-arm64
-          versionbump-darwin-amd64
+            versionbump-linux-arm64
+            versionbump-linux-amd64
+            versionbump-darwin-arm64
+            versionbump-darwin-amd64
