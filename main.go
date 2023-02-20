@@ -110,7 +110,6 @@ func parse(content []byte) (File, error) {
 		} else {
 			file.Body = append(file.Body, line)
 		}
-		fmt.Println(line)
 	}
 	return file, nil
 }
