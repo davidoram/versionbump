@@ -13,22 +13,29 @@ import (
 func main() {
 	opt, err := parseOpts()
 	if err != nil {
-		fmt.Errorf("Error: %v", err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	err = processFile(opt)
+	file, err := processFile(opt)
 	if err != nil {
-		fmt.Errorf("Error: %v", err)
+		fmt.Println(err)
+		os.Exit(2)
+	}
+	err = saveFile(opt.Filename, file)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
-func processFile(opts Options) error {
+func processFile(opts Options) (File, error) {
 	lines, err := os.ReadFile(opts.Filename)
 	if err != nil {
-		return err
+		return File{}, err
 	}
 	file, err := parse(lines)
 	if err != nil {
-		return err
+		return file, err
 	}
 	if opts.Major {
 		file.Version.IncrementMajor()
@@ -37,7 +44,7 @@ func processFile(opts Options) error {
 	} else {
 		file.Version.IncrementPatch()
 	}
-	return saveFile(opts.Filename, file)
+	return file, nil
 }
 
 type SemverLine struct {
