@@ -44,6 +44,7 @@ func processFile(opts Options) (File, error) {
 	} else {
 		file.Version.IncrementPatch()
 	}
+	file.Comment = opts.Comment
 	return file, nil
 }
 
@@ -76,6 +77,7 @@ func (s *SemverLine) IncrementPatch() {
 type File struct {
 	Header  []string
 	Version SemverLine
+	Comment string
 	Body    []string
 }
 
@@ -83,6 +85,7 @@ func (file File) Lines() []string {
 	lines := []string{}
 	lines = append(lines, file.Header...)
 	lines = append(lines, file.Version.String())
+	lines = append(lines, file.Comment)
 	lines = append(lines, file.Body...)
 	return lines
 }
@@ -127,7 +130,7 @@ func saveFile(filename string, file File) error {
 }
 
 func parseSemver(line string) *SemverLine {
-	r := regexp.MustCompile(`(?P<Prefix>.*+)(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)`)
+	r := regexp.MustCompile(`(?P<Prefix>.*)(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)`)
 	match := r.FindStringSubmatch(line)
 	verMap := make(map[string]string)
 	for i, name := range r.SubexpNames() {
