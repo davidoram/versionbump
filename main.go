@@ -177,11 +177,14 @@ func parseOpts() (Options, error) {
 	if opts.Comment == "" {
 		return opts, fmt.Errorf("comment is required")
 	}
+	// Convert esacpes to newlines in the comment
+	opts.Comment = strings.ReplaceAll(opts.Comment, `\n`, "\n")
+
 	if (opts.Major && (opts.Minor || opts.Patch)) ||
 		(opts.Minor && (opts.Major || opts.Patch)) ||
 		(opts.Patch && (opts.Major || opts.Minor)) ||
 		(!opts.Minor && !opts.Major && !opts.Patch) {
-		return opts, fmt.Errorf("major, minor and patch are mutually exclusive")
+		return opts, fmt.Errorf("exactly one of major, minor and patch must be selected")
 	}
 	return opts, nil
 }
