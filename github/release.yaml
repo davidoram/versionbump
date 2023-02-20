@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.19
+        run: go mod download
 
       # step 2: run tests
       - name: Test
