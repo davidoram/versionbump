@@ -139,7 +139,7 @@ func saveChangelogFile(filename string, file ChangelogFile) error {
 
 var (
 	semverRegex        = regexp.MustCompile(`(?P<Prefix>.*)(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)`)
-	rubyLibSemverRegex = regexp.MustCompile(`(?P<Prefix>\s*VERSION\s*=\s*'|")(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)(?P<Suffix>'|")(?P<Freeze>\.freeze)?`)
+	rubyLibSemverRegex = regexp.MustCompile(`(?P<Prefix>\s*VERSION\s*=\s*['"]{1})(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)(?P<Suffix>['"]{1})(?P<Freeze>\.freeze)?`)
 )
 
 func parseSemver(line string) *SemverLine {
