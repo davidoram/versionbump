@@ -134,7 +134,7 @@ func TestProcessRubyLibVersionFile(t *testing.T) {
 			}
 
 			assert.Equal(t, string(want), string(outFile))
-			os.Chdir("../..")
+			os.Chdir("../../..")
 		})
 	}
 	assert.Greater(t, cases, 0)
