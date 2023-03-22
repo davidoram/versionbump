@@ -1,5 +1,5 @@
 # versionbump
-A command line tool to add a new semantic version into a CHANGELOG.md file
+A command line tool to add a new semantic version into a CHANGELOG.md file, and also set the new semantic version in a ruby library's `lib/*/version.rb` file if one exists.
 
 Download binaries from the releases
 

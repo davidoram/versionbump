@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.1
+
+Tidy up tests + docs
+
 ## 0.2.0
 
 Bump the version inside ruby libraries that keep the version in a file called `lib/*/version.rb`
