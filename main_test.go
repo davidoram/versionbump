@@ -117,7 +117,7 @@ func TestProcessRubyLibVersionFile(t *testing.T) {
 			cases++
 			t.Logf("Testing %s", testname)
 			os.Chdir(testname)
-			outFilename, err := processRubyLibVersionFile(SemverLine{Major: 1, Minor: 2, Patch: 3})
+			outFilename, buf, _, err := processRubyLibVersionFile(SemverLine{Major: 1, Minor: 2, Patch: 3})
 			assert.NoError(t, err)
 			assert.NotEmpty(t, outFilename)
 
@@ -128,12 +128,7 @@ func TestProcessRubyLibVersionFile(t *testing.T) {
 			if err != nil {
 				t.Fatal("error reading golden file:", err)
 			}
-			outFile, err := os.ReadFile(outFilename)
-			if err != nil {
-				t.Fatal("error reading outFile file:", err)
-			}
-
-			assert.Equal(t, string(want), string(outFile))
+			assert.Equal(t, string(want), string(buf))
 			os.Chdir("../../..")
 		})
 	}

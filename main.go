@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -28,7 +29,12 @@ func main() {
 		os.Exit(1)
 	}
 	if opt.RubyLib {
-		_, err = processRubyLibVersionFile(file.Version)
+		filename, buf, permissions, err := processRubyLibVersionFile(file.Version)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = os.WriteFile(filename, buf, permissions)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -161,25 +167,24 @@ func parseSemver(line string) *SemverLine {
 		Patch:  mustAtoi(verMap["Patch"])}
 }
 
-func processRubyLibVersionFile(version SemverLine) (string, error) {
+func processRubyLibVersionFile(version SemverLine) (string, []byte, fs.FileMode, error) {
+	permissions := fs.FileMode(0)
+	buf := []byte{}
 	found, filename, err := existsRubyLibVersionFile()
-	if err != nil {
-		return "", err
-	}
-	if !found {
-		return "", nil
+	if err != nil || !found {
+		return filename, buf, permissions, err
 	}
 
 	// Read the permissions so we can write them back
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
-		return filename, err
+		return filename, buf, permissions, err
 	}
-	permissions := fileInfo.Mode().Perm()
+	permissions = fileInfo.Mode().Perm()
 
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		return filename, err
+		return filename, buf, permissions, err
 	}
 	lines := strings.Split(string(file), "\n")
 	for i, line := range lines {
@@ -200,7 +205,7 @@ func processRubyLibVersionFile(version SemverLine) (string, error) {
 		}
 		break
 	}
-	return filename, os.WriteFile(filename, []byte(strings.Join(lines, "\n")), permissions)
+	return filename, []byte(strings.Join(lines, "\n")), permissions, nil
 }
 
 func existsRubyLibVersionFile() (bool, string, error) {
