@@ -19,6 +19,8 @@ Usage of versionbump-darwin-amd64:
     	Specify this flag to bump the minor version
   -patch
     	Specify this flag to bump the patch version
+  -ruby-lib
+    	Specify this flag to automatically update the version in a ruby lib version file 'lib/*/version.rb' (default true)
 ```
 
 Example usage:
