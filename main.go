@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,24 +17,32 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	file, err := processFile(opt)
+	file, err := processChangelogFile(opt)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	err = saveFile(opt.Filename, file)
+	err = saveChangelogFile(opt.Filename, file)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	if opt.RubyLib {
+		_, err = processRubyLibVersionFile(file.Version)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+
 }
 
-func processFile(opts Options) (File, error) {
+func processChangelogFile(opts Options) (ChangelogFile, error) {
 	lines, err := os.ReadFile(opts.Filename)
 	if err != nil {
-		return File{}, err
+		return ChangelogFile{}, err
 	}
-	file, err := parse(lines)
+	file, err := parseChangelog(lines)
 	if err != nil {
 		return file, err
 	}
@@ -74,14 +83,14 @@ func (s *SemverLine) IncrementPatch() {
 	s.Patch++
 }
 
-type File struct {
+type ChangelogFile struct {
 	Header  []string
 	Version SemverLine
 	Comment string
 	Body    []string
 }
 
-func (file File) Lines() []string {
+func (file ChangelogFile) Lines() []string {
 	lines := []string{}
 	lines = append(lines, file.Header...)
 	lines = append(lines, file.Version.String())
@@ -90,9 +99,9 @@ func (file File) Lines() []string {
 	return lines
 }
 
-func parse(content []byte) (File, error) {
+func parseChangelog(content []byte) (ChangelogFile, error) {
 	lines := strings.Split(string(content), "\n")
-	file := File{Header: []string{}, Body: []string{}}
+	file := ChangelogFile{Header: []string{}, Body: []string{}}
 
 	findingVersion := true
 	for _, line := range lines {
@@ -114,7 +123,7 @@ func parse(content []byte) (File, error) {
 	return file, nil
 }
 
-func saveFile(filename string, file File) error {
+func saveChangelogFile(filename string, file ChangelogFile) error {
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -128,11 +137,16 @@ func saveFile(filename string, file File) error {
 	return w.Flush()
 }
 
+var (
+	semverRegex        = regexp.MustCompile(`(?P<Prefix>.*)(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)`)
+	rubyLibSemverRegex = regexp.MustCompile(`(?P<Prefix>\s*VERSION\s*=\s*'|")(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)(?P<Suffix>'|")(?P<Freeze>\.freeze)?`)
+)
+
 func parseSemver(line string) *SemverLine {
-	r := regexp.MustCompile(`(?P<Prefix>.*)(?P<Major>\d+)\.(?P<Minor>\d+)\.(?P<Patch>\d+)`)
-	match := r.FindStringSubmatch(line)
+
+	match := semverRegex.FindStringSubmatch(line)
 	verMap := make(map[string]string)
-	for i, name := range r.SubexpNames() {
+	for i, name := range semverRegex.SubexpNames() {
 		if i > 0 && i <= len(match) {
 			verMap[name] = match[i]
 		}
@@ -145,6 +159,62 @@ func parseSemver(line string) *SemverLine {
 		Major:  mustAtoi(verMap["Major"]),
 		Minor:  mustAtoi(verMap["Minor"]),
 		Patch:  mustAtoi(verMap["Patch"])}
+}
+
+func processRubyLibVersionFile(version SemverLine) (string, error) {
+	found, filename, err := existsRubyLibVersionFile()
+	if err != nil {
+		return "", err
+	}
+	if !found {
+		return "", nil
+	}
+
+	// Read the permissions so we can write them back
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		return filename, err
+	}
+	permissions := fileInfo.Mode().Perm()
+
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return filename, err
+	}
+	lines := strings.Split(string(file), "\n")
+	for i, line := range lines {
+		// Look for a matching line
+		match := rubyLibSemverRegex.FindStringSubmatch(line)
+		verMap := make(map[string]string)
+		for i, name := range rubyLibSemverRegex.SubexpNames() {
+			if i > 0 && i <= len(match) {
+				verMap[name] = match[i]
+			}
+		}
+		if len(verMap) == 0 {
+			continue
+		}
+		lines[i] = fmt.Sprintf("%s%s%s", verMap["Prefix"], version.String(), verMap["Suffix"])
+		if verMap["Freeze"] != "" {
+			lines[i] += verMap["Freeze"]
+		}
+		break
+	}
+	return filename, os.WriteFile(filename, []byte(strings.Join(lines, "\n")), permissions)
+}
+
+func existsRubyLibVersionFile() (bool, string, error) {
+	versionFiles, err := filepath.Glob("lib/*/version.rb")
+	if err != nil {
+		return false, "", err
+	}
+
+	if len(versionFiles) == 0 {
+		return false, "", nil
+	} else if len(versionFiles) == 1 {
+		return true, versionFiles[0], nil
+	}
+	return false, "", fmt.Errorf("Found multiple 'lib/*/version.rb' files: %s", strings.Join(versionFiles, ", "))
 }
 
 func mustAtoi(s string) int {
@@ -161,6 +231,7 @@ type Options struct {
 	Major    bool
 	Minor    bool
 	Patch    bool
+	RubyLib  bool
 }
 
 func parseOpts() (Options, error) {
@@ -170,6 +241,7 @@ func parseOpts() (Options, error) {
 	flag.BoolVar(&opts.Major, "major", false, "Specify this flag to bump the major version")
 	flag.BoolVar(&opts.Minor, "minor", false, "Specify this flag to bump the minor version")
 	flag.BoolVar(&opts.Patch, "patch", false, "Specify this flag to bump the patch version")
+	flag.BoolVar(&opts.RubyLib, "ruby-lib", true, "Specify this flag to automatically update the version in a ruby lib version file 'lib/*/version.rb'")
 	flag.Parse()
 	if opts.Filename == "" {
 		return opts, fmt.Errorf("filename is required")

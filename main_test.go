@@ -65,25 +65,26 @@ func TestSemverIncrementPatch(t *testing.T) {
 	}
 }
 
-func TestProcessFile(t *testing.T) {
+func TestProcessChangelogFile(t *testing.T) {
 	// Find the paths of all input files in the data directory.
 	paths, err := filepath.Glob(filepath.Join("testdata", "*.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	cases := 0
 	for _, testname := range paths {
 
 		// Each path turns into a test: the test name is the filename without the
 		// extension.
 		t.Run(testname, func(t *testing.T) {
+			cases++
 			t.Logf("Testing %s", testname)
 			opts := Options{
 				Filename: testname,
 				Comment:  "\nThis text is added to the top of the file [ticket](http://link/to/a/ticket)\n",
 				Minor:    true,
 			}
-			outFile, err := processFile(opts)
+			outFile, err := processChangelogFile(opts)
 			assert.NoError(t, err)
 
 			// Each input file is expected to have a "golden output" file, with the
@@ -98,4 +99,43 @@ func TestProcessFile(t *testing.T) {
 			assert.Equal(t, want, output)
 		})
 	}
+	assert.Greater(t, cases, 0)
+}
+
+func TestProcessRubyLibVersionFile(t *testing.T) {
+	// Find the paths of all input files in the data directory.
+	paths, err := filepath.Glob(filepath.Join("testdata", "rubylib", "*"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases := 0
+	for _, testname := range paths {
+
+		// Each path turns into a test: the test name is the filename without the
+		// extension.
+		t.Run(testname, func(t *testing.T) {
+			cases++
+			t.Logf("Testing %s", testname)
+			os.Chdir(testname)
+			outFilename, err := processRubyLibVersionFile(SemverLine{Major: 1, Minor: 2, Patch: 3})
+			assert.NoError(t, err)
+			assert.NotEmpty(t, outFilename)
+
+			// Each input file is expected to have a "golden output" file, with the
+			// same path except it has a .golden extension.
+			goldenfile := outFilename + ".golden"
+			want, err := os.ReadFile(goldenfile)
+			if err != nil {
+				t.Fatal("error reading golden file:", err)
+			}
+			outFile, err := os.ReadFile(outFilename)
+			if err != nil {
+				t.Fatal("error reading outFile file:", err)
+			}
+
+			assert.Equal(t, string(want), string(outFile))
+			os.Chdir("../..")
+		})
+	}
+	assert.Greater(t, cases, 0)
 }
