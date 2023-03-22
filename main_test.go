@@ -19,7 +19,7 @@ func TestSemverString(t *testing.T) {
 		{semver: SemverLine{Prefix: "", Major: 1, Minor: 2, Patch: 3}, str: "1.2.3"},
 	}
 	for _, test := range testString {
-		assert.Equal(t, test.str, test.semver.String())
+		assert.Equal(t, test.str, test.semver.VersionWithPrefix())
 	}
 }
 
@@ -33,7 +33,7 @@ func TestSemverIncrementMajor(t *testing.T) {
 	}
 	for _, test := range testString {
 		test.semver.IncrementMajor()
-		assert.Equal(t, test.str, test.semver.String())
+		assert.Equal(t, test.str, test.semver.VersionWithPrefix())
 	}
 }
 
@@ -47,7 +47,7 @@ func TestSemverIncrementMinor(t *testing.T) {
 	}
 	for _, test := range testString {
 		test.semver.IncrementMinor()
-		assert.Equal(t, test.str, test.semver.String())
+		assert.Equal(t, test.str, test.semver.VersionWithPrefix())
 	}
 }
 
@@ -61,7 +61,7 @@ func TestSemverIncrementPatch(t *testing.T) {
 	}
 	for _, test := range testString {
 		test.semver.IncrementPatch()
-		assert.Equal(t, test.str, test.semver.String())
+		assert.Equal(t, test.str, test.semver.VersionWithPrefix())
 	}
 }
 

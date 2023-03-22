@@ -70,10 +70,13 @@ type SemverLine struct {
 	Patch  int
 }
 
-func (s *SemverLine) String() string {
-	return fmt.Sprintf("%s%d.%d.%d", s.Prefix, s.Major, s.Minor, s.Patch)
+func (s *SemverLine) VersionWithPrefix() string {
+	return fmt.Sprintf("%s%s", s.Prefix, s.String())
 }
 
+func (s *SemverLine) String() string {
+	return fmt.Sprintf("%d.%d.%d", s.Major, s.Minor, s.Patch)
+}
 func (s *SemverLine) IncrementMajor() {
 	s.Major++
 	s.Minor = 0
@@ -99,7 +102,7 @@ type ChangelogFile struct {
 func (file ChangelogFile) Lines() []string {
 	lines := []string{}
 	lines = append(lines, file.Header...)
-	lines = append(lines, file.Version.String())
+	lines = append(lines, file.Version.VersionWithPrefix())
 	lines = append(lines, file.Comment)
 	lines = append(lines, file.Body...)
 	return lines
