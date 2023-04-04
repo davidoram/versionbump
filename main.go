@@ -26,18 +26,28 @@ func main() {
 	err = saveChangelogFile(opt.Filename, file)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		os.Exit(3)
 	}
 	if opt.RubyLib {
-		filename, buf, permissions, err := processRubyLibVersionFile(file.Version)
+		found, filename, err := existsRubyLibVersionFile()
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			os.Exit(4)
+		}
+		if !found {
+			fmt.Println("No ruby lib version file found")
+			os.Exit(0)
+		}
+
+		buf, permissions, err := processRubyLibVersionFile(filename, file.Version)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(4)
 		}
 		err = os.WriteFile(filename, buf, permissions)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			os.Exit(5)
 		}
 	}
 
@@ -170,24 +180,20 @@ func parseSemver(line string) *SemverLine {
 		Patch:  mustAtoi(verMap["Patch"])}
 }
 
-func processRubyLibVersionFile(version SemverLine) (string, []byte, fs.FileMode, error) {
+func processRubyLibVersionFile(filename string, version SemverLine) ([]byte, fs.FileMode, error) {
 	permissions := fs.FileMode(0)
 	buf := []byte{}
-	found, filename, err := existsRubyLibVersionFile()
-	if err != nil || !found {
-		return filename, buf, permissions, err
-	}
 
 	// Read the permissions so we can write them back
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
-		return filename, buf, permissions, err
+		return buf, permissions, err
 	}
 	permissions = fileInfo.Mode().Perm()
 
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		return filename, buf, permissions, err
+		return buf, permissions, err
 	}
 	lines := strings.Split(string(file), "\n")
 	for i, line := range lines {
@@ -208,7 +214,7 @@ func processRubyLibVersionFile(version SemverLine) (string, []byte, fs.FileMode,
 		}
 		break
 	}
-	return filename, []byte(strings.Join(lines, "\n")), permissions, nil
+	return []byte(strings.Join(lines, "\n")), permissions, nil
 }
 
 func existsRubyLibVersionFile() (bool, string, error) {

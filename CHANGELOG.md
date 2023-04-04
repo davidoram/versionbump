@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.2
+
+Fix a bug where the app failed if the library version file was not found.
+
 ## 0.2.1
 
 Tidy up tests + docs
