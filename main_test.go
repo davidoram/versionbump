@@ -117,13 +117,16 @@ func TestProcessRubyLibVersionFile(t *testing.T) {
 			cases++
 			t.Logf("Testing %s", testname)
 			os.Chdir(testname)
-			outFilename, buf, _, err := processRubyLibVersionFile(SemverLine{Major: 1, Minor: 2, Patch: 3})
+			found, filename, err := existsRubyLibVersionFile()
 			assert.NoError(t, err)
-			assert.NotEmpty(t, outFilename)
+			assert.True(t, found)
+			buf, _, err := processRubyLibVersionFile(filename, SemverLine{Major: 1, Minor: 2, Patch: 3})
+			assert.NoError(t, err)
+			assert.NotEmpty(t, filename)
 
 			// Each input file is expected to have a "golden output" file, with the
 			// same path except it has a .golden extension.
-			goldenfile := outFilename + ".golden"
+			goldenfile := filename + ".golden"
 			want, err := os.ReadFile(goldenfile)
 			if err != nil {
 				t.Fatal("error reading golden file:", err)
