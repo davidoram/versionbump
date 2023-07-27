@@ -1,5 +1,10 @@
 # Change log
 
+## 0.2.3
+
+Fixed bugs:
+- removed extra newline to CHANGELOG.md file
+
 ## 0.2.2
 
 Fix a bug where the app failed if the library version file was not found.

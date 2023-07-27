@@ -150,9 +150,8 @@ func saveChangelogFile(filename string, file ChangelogFile) error {
 	defer f.Close()
 
 	w := bufio.NewWriter(f)
-	for _, line := range file.Lines() {
-		fmt.Fprintln(w, line)
-	}
+	contents := strings.Join(file.Lines(), "\n")
+	fmt.Fprint(w, contents)
 	return w.Flush()
 }
 
