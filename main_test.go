@@ -96,7 +96,7 @@ func TestProcessChangelogFile(t *testing.T) {
 			}
 
 			output := []byte(strings.Join(outFile.Lines(), "\n"))
-			assert.Equal(t, want, output)
+			assert.Equal(t, string(want), string(output))
 		})
 	}
 	assert.Greater(t, cases, 0)
