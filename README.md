@@ -28,3 +28,7 @@ Example usage:
 `versionbump-darwin-amd64 -comment "\nThis is a test\n" -filename CHANGELOG.md -minor`
 
 Note that inside the `-comment` field `\n` is replaced with a linebreak.
+
+## Release
+
+Create a new release manually. Github actions will detect this, and build the artifacts and attach them to the new release.
